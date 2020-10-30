@@ -48,7 +48,7 @@ Mat skinDetection(const Mat& image, int minCr = 139, int maxCr = 170, int minCb 
 	return mask;
 }
 // 손바닥 검출
-Mat palmDetectuon(Mat img);
+Mat palmDetection(Mat img);
 
 // 손가락 개수 세기
 Mat countFinger(Mat img);
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 		imshow("binary Image", image);
 		
 		
-		image = palmDetectuon(image);
+		image = palmDetection(image);
 		namedWindow("Palm Image");
 		imshow("Palm Image", image);
 
