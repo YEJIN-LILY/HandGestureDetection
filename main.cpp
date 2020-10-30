@@ -21,7 +21,7 @@ Mat getImage(const Mat& img) {
 }
 
 // 피부 검출 및 이진화
-Mat skinDetection(const Mat& image, int minCr = 128, int maxCr = 170, int minCb = 73, int maxCb = 158) {
+Mat skinDetection(const Mat& image, int minCr = 139, int maxCr = 170, int minCb = 82, int maxCb = 127) {
 	Mat YCrCb;
 	cvtColor(image, YCrCb, COLOR_BGR2YCrCb);
 
@@ -44,7 +44,7 @@ Mat skinDetection(const Mat& image, int minCr = 128, int maxCr = 170, int minCb 
 		}
 	}
 	erode(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 2);
-
+	dilate(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 1);
 	return mask;
 }
 // 손바닥 검출
