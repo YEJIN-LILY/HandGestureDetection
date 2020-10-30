@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 		image=skinDetection(image);
 		namedWindow("binary Image");
 		imshow("binary Image", image);
-		if (waitKey(5) >= 0) break; 
+		
 		
 		image = palmDetectuon(image);
 		namedWindow("Palm Image");
@@ -84,7 +84,8 @@ int main(int argc, char** argv)
 		image = countFinger(image);
 		namedWindow("Finger Image");
 		imshow("Finger Image", image);
-
+		
+		if (waitKey(5) >= 0) break; 
 	} 
 
 
