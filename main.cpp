@@ -30,12 +30,20 @@ int main(int argc, char** argv)
 	Mat image;
 
 	image = getImage(image);
+	namedWindow("webcam Image");
+	imshow("webcam Image", image);
 
 	image = skinDetection(image);
+	namedWindow("binary Image");
+	imshow("binary Image", image);
 
 	image = palmDetectuon(image);
+	namedWindow("Palm Image");
+	imshow("Palm Image", image);
 
 	image = countFinger(image);
+	namedWindow("Finger Image");
+	imshow("Finger Image", image);
 
 	return 0;
 }
