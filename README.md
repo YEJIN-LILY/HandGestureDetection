@@ -16,7 +16,7 @@
 3. 손바닥 검출(ROI) Point palmDetection(Mat img)
    - *침식으로 손바닥만 남기기
    - 손바닥 중심 알아내기
-4. 손 개수 세기 Mat countFinger(Mat img)
+4. 손 개수 세기 void countFinger(Mat img, Point palm)
    - 원 그리기
    - 개수 출력하기(cmd창)
 
