@@ -1,6 +1,3 @@
-// ****** 이미지를 흑백으로 바꿔서 출력
-// C:\Users\sue11\GRKim\ComputerVision\testProject\x64\Release> testProject.exe Images.jpg
-
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
