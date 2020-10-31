@@ -9,7 +9,7 @@
    - inRange()로 피부영역(두 값 사이) 검출 
    - 피부는 흰색, 배경은 검정으로 이진화
    - 열림 연산(잡음제거)
-3. 손바닥 검출(ROI) Mat palmDetection(Mat img)
+3. 손바닥 검출(ROI) Point palmDetection(Mat img)
    - *침식으로 손바닥만 남기기
    - 손바닥 중심 알아내기
 4. 손 개수 세기 Mat countFinger(Mat img)
