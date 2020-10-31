@@ -1,5 +1,9 @@
 # HandGestureDetection
 
+## Specification
+* OpenCV 4.4.0
+* Microsoft Visual C++ 2019
+
 ## Structure
 1. 영상을 프레임별로 계속 가져오기(Mat getImage(Mat img))
    - 웹캠
