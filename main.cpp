@@ -27,7 +27,7 @@ Mat skinDetection(const Mat& image, int minCr = 133, int maxCr = 173, int minCb 
 // 손바닥 검출
 Point palmDetection(Mat img);
 
-
+// 손가락 개수 세기
 void countFinger(Mat img, Point palm);
 
 int main(int argc, char** argv)
@@ -57,13 +57,13 @@ int main(int argc, char** argv)
 
 
 
-		Point palm;
-		palm = palmDetection(image);
+		Point palmCenter;
+		palmCenter = palmDetection(image);
 
 		//namedWindow("Palm Image");
 		//imshow("Palm Image", image);
 
-		countFinger(image, palm);
+		countFinger(image, palmCenter);
 		//namedWindow("Finger Image");
 		//imshow("Finger Image", image);
 
@@ -93,7 +93,7 @@ Mat getImage(const Mat& img) {
 
 // 피부 검출 및 이진화
 Mat skinDetection(const Mat& image, int minCr, int maxCr, int minCb, int maxCb) {
-	
+
 	Mat YCrCb;
 	cvtColor(image, YCrCb, COLOR_BGR2YCrCb);
 
@@ -118,7 +118,7 @@ Mat skinDetection(const Mat& image, int minCr, int maxCr, int minCb, int maxCb) 
 	erode(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 2);
 	dilate(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 1);
 
-	
+
 	return mask;
 }
 
@@ -129,9 +129,9 @@ Point palmDetection(Mat img)
 	Mat after;
 
 	before = img.clone();
-	
+
 	bool allBlack = true;
-	
+
 
 	while (allBlack)
 	{
@@ -184,19 +184,19 @@ Point palmDetection(Mat img)
 			row = (int)(row / count);
 			col = (int)(col / count);
 
-			Point palm(col, row);
+			Point palmCenter(col, row);
 
 			//after.at<uchar>(row, col) = 255;
 			cvtColor(img, img, COLOR_GRAY2BGR);
 
-			circle(img, palm, 5, Scalar(123, 255, 123), -1);
+			circle(img, palmCenter, 5, Scalar(123, 255, 123), -1);
 
 			namedWindow("Palm Image");
 			imshow("Palm Image", img);
 
 
 
-			return palm;
+			return palmCenter;
 		}
 
 		allBlack = true;
@@ -207,162 +207,159 @@ Point palmDetection(Mat img)
 }
 
 
-
 // 손가락 개수 세기
-void countFinger(Mat img, Point palm) {
+void countFinger(Mat img, Point center) {
 
-	Mat dst;
-	img.copyTo(dst);
+	Mat dst, color;
+	//img.copyTo(dst);
+	dst = img.clone();
 
+
+	color = img.clone();
+	cvtColor(color, color, COLOR_GRAY2BGR);
+	cvtColor(dst, dst, COLOR_GRAY2BGR);
+	//circle(color, center, 5, Scalar(123, 255, 123), -1);
+
+
+	double radius = 15.0;
+	int x, y;
+	bool stop = false;
+	while (!stop)
+	{
+		for (int theta = 0; theta < 360; theta++) {
+
+
+			x = (int)(cos(theta * PI / 180) * radius + center.y);
+			y = (int)(sin(theta * PI / 180) * radius + center.x);
+			if (0 < x && x < img.rows && 0 < y && y < img.cols)
+			{
+				// 체크하고 있는 곳 표시
+				color.at<Vec3b>(x, y)[0] = 255;
+				color.at<Vec3b>(x, y)[1] = 120;
+				color.at<Vec3b>(x, y)[2] = 50;
+
+				// 원이 그려진 곳에 검은색 화소가 있다면
+				if (img.at<uchar>(x, y) == 0)
+				{ 
+					stop = true; // while 탈출~~
+					break; // for 루프 탈출~~
+				}
+
+				//namedWindow("color");
+				//imshow("color", color);
+				//waitKey(10);
+			}
+		}
+		radius += 1; // 원 반지름 증가
+	}
+
+	//namedWindow("inner circle");
+	//imshow("inner circle", color);
 
 
 	//Mat image = imread("hand.jpg");
 
 	//Point center = palmDetectuon(img); // input gray-scale image
 	//Point_<double> center((double)dst.size().width / 2, (double)dst.size().height / 2);
-	Point_<double> center(palm);
-	cout << "손바닥 중심점 좌표:" << center << endl;
+	//Point_<double> center(palm);
+	//cout << "손바닥 중심점 좌표:" << center << endl;
 
-
-	
-
-	//손바닥 중심점 그리기
-	//circle(img, center, 2, Scalar(0, 255, 0), -1);
-
-	double radius = 5.0;
-	double x, y;
-	bool stop;
-
-	while (1) {
-
-		// 원을 그린다
-		stop = 0;
-		//circle(img, center, radius, Scalar(255, 0, 0), 1, 8, 0);
-		//imshow("count finger", img);
-		//waitKey(50);
-		//circle(img, center, radius, Scalar(255, 255, 255), 1, 8, 0); //remove
-
-		//원이 그려진 곳에 검은색 화소가 있는지 검사
-		for (int theta = 0; theta < 360; theta++) {
-
-			x = (double)cos(theta * PI / 180) * radius + center.x;
-			y = (double)sin(theta * PI / 180) * radius + center.y;
-			//cout << "(x = " << x << ", y= " << y << ")  ";
-			//cout << "value: " << img.at<uchar>(x, y) << endl;
-			if (img.at<uchar>(x, y) == 0) { // 원이 그려진 곳에 검은색 화소가 있다면
-				stop = 1;
-				break;
-			}
-		}
-
-		if (stop) {
-			break;
-		}
-
-		radius++;// 원 반지름 증가
-
-
-	}
-	// 실제 반지름 원
-	//circle(img, center, radius, Scalar(0, 0, 255), 1, 8, 0); //red
 
 	// 최종 원 그리기
-	radius = radius * 1.5;
-	circle(dst, center, radius, Scalar(0, 0, 255), 1, 8, 0); //red
+	//radius = radius * 1.5;
+	radius = radius * 2;
 
-	cout << "손바닥 중심점 좌표:" << center << ", 반지름:" << radius << endl;
-
-	namedWindow("draw circle on hand");
-	imshow("draw circle on hand", dst);
-
-
-	/*
-
-	// 손가락과 원이 겹치는 부분만 추출
-	Mat circle_img = Mat::zeros(dst.size().width, dst.size().height, CV_8U);
-	//circle(circle_img, center, radius, Scalar(255, 255, 255), 1, 8, 0); //red
-	for (int theta = 0; theta < 360; theta++) {
-
-		x = (double)cos(theta * PI / 180) * radius + center.x;
-		y = (double)sin(theta * PI / 180) * radius + center.y;
-
-		circle_img.at<uchar>(x, y) = 255;  // 원이 그려진 곳에 검은색 화소가 있다면
-	}
-	bitwise_and(img, circle_img, dst);
-
-	namedWindow("& operate");
-	imshow("& operate", dst);
-
-
-
-	// 원 둘레를 돌며 손가락 카운트
-
-	int pre_x = (double)cos(0 * PI / 180) * radius + center.x;
-	int pre_y = (double)sin(0 * PI / 180) * radius + center.y;
 	int count = 0;
+	int pre_x, pre_y;
 
-	Mat test = Mat::zeros(dst.size().width, dst.size().height, CV_8UC1);
-	dst.copyTo(test);
-	cvtColor(dst, test, COLOR_GRAY2BGR);
+	pre_x = (int)(cos(0 * PI / 180) * radius + center.y);
+	pre_y = (int)(sin(0 * PI / 180) * radius + center.x);
 
 
-	//Point th0(pre_x, pre_y);
-	//circle(test, th0, 3, Scalar(0, 0, 255), 1, 8, 0); //red
+	//printf("row, column = %d, %d\n", img.rows, img.cols);
+	for (int theta = 1; theta < 360; theta++) 
+	{
+		x = (int)(cos(theta * PI / 180) * radius + center.y);
+		y = (int)(sin(theta * PI / 180) * radius + center.x);
 
-	for (int theta = 1; theta < 360; theta++) {
 
-		x = (double)cos(theta * PI / 180) * radius + center.x;
-		y = (double)sin(theta * PI / 180) * radius + center.y;
-		//cout << "(x = " << x << ", y= " << y << ")  ";
-		//cout << "value: " << img.at<uchar>(x, y) << endl;
-		//if ((img.at<uchar>(pre_x, pre_y) == 0) && (img.at<uchar>(x, y) == 255)) { // 이전 화소와 같이 다르다면
-		//	img.at<uchar>(x, y) = 120;
-		//	count++;
-		//	
-		//}
-		//if (theta == 90) {
-		//	Point th90(x, y);
-		//	circle(test, th90, 3, Scalar(0, 255, 0), 1, 8, 0); //green
-		//}
-		//if (theta == 180) {
-		//	Point th180(x, y);
-		//	circle(test, th180, 3, Scalar(255, 0, 255), 1, 8, 0); //magenta
-		//}
-		//if (theta == 270) {
-		//	Point th270(x, y);
-		//	circle(test, th270, 3, Scalar(255, 255, 0), 1, 8, 0); //cyan
-		//}
+		if ( !(0 < pre_x && pre_x < img.rows && 0 < pre_y && pre_y < img.cols) )
+		{
+			pre_x = x;
+			pre_y = y;
+			continue;
+		}
 
 
 
-		//printf("t = %d   (x, y) = %d  \n", theta, dst.at<uchar>(x, y));
-		if (dst.at<uchar>(pre_x, pre_y) != dst.at<uchar>(x, y)) { // 이전 화소와 값이 다르다면
-			//printf("---------------------red point (x, y) = (%d, %d)  value = %d", x, y, dst.at<uchar>(x, y));
-			//test.at<Vec3b>(x, y)[2] = 255;
+		if (0 < x && x < img.rows && 0 < y && y < img.cols)
+		{
+			// 체크하고 있는 곳 표시. 호박색
+			color.at<Vec3b>(x, y)[0] = 50;
+			color.at<Vec3b>(x, y)[1] = 120;
+			color.at<Vec3b>(x, y)[2] = 255;
 
-			Point th(x, y);
-			circle(test, th, 3, Scalar(0, 0, 255), 1, 8, 0); //green
+			//printf("before, now = (%3d, %3d), (%3d, %3d)\n", pre_x, pre_y, x, y);
+			//printf("befroe, now = %3d, %3d\n\n", img.at<uchar>(pre_x, pre_y), img.at<uchar>(x, y));
 
-			//img.at<uchar>(x, y) = 120;
-			count++;
+			// 이전 화소와 값이 다르다면 카운트
+			if ( img.at<uchar>(pre_x, pre_y) != img.at<uchar>(x, y)) 
+			{ 
+				color.at<Vec3b>(x, y)[0] = 50;
+				color.at<Vec3b>(x, y)[1] = 255;
+				color.at<Vec3b>(x, y)[2] = 120;
+				count++;
+			}
 
 		}
 		pre_x = x;
 		pre_y = y;
-		imshow("test", test);
 
-		waitKey(50);
+
+		imshow("circles", color);
+		//waitKey(1);
 	}
 
-	cout << "count: " << count << endl;
-	count = (count / 2) - 1;
-	cout << "손가락 개수: " << count << endl;
+	printf("count: %d\n", count);
 
 
-	*/
+	int fingerCount = (count / 2) - 1;
+
+	printf("fingerCount: %d\n\n", fingerCount);
+
+
+	string text = "fingerCount = ";
+	
+	if (fingerCount < 0)
+	{
+		text = "No hand";
+	}
+	else
+	{
+		text += to_string(fingerCount);
+	}
+
+	int fontFace = FONT_HERSHEY_PLAIN;
+	double fontScale = 2;
+	int thickness = 3;
+
+	int baseline = 0;
+	Size textSize = getTextSize(text, fontFace, fontScale, thickness, &baseline);
+	baseline += thickness;
+	// center the text
+	Point textOrg((img.cols - textSize.width) / 2, (img.rows + textSize.height) / 1.2);
+
+
+	// then put the text itself
+	putText(dst, text, textOrg, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
+
+
+
+	imshow("Detected Fingers", dst);
+
+
 
 }
-
 
 
 
