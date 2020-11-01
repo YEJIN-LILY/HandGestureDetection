@@ -17,7 +17,7 @@ using namespace cv;
 using namespace std;
 
 #define PI 3.14159265
-#define qSize 10
+#define qSize 20
 
 
 // HandGestureDetection
@@ -64,8 +64,12 @@ int main(int argc, char** argv)
 	for (;;) {
 		cap.read(image);
 		if (image.empty()) { cerr << "ERROR! blank frame grabbed\n"; break; }
+		flip(image, image, 1); // 영상 좌우반전
+		Mat resizedImg = image.clone();
+		Size half(image.cols / 2, image.rows / 2);
+		resize(image, resizedImg, half);
 		namedWindow("webcam Image");
-		imshow("webcam Image", image); //live image test(나중에 삭제)
+		imshow("webcam Image", resizedImg); //live image test(나중에 삭제)
 
 
 		// 블러된 영상을 프레임별로 계속 가져오기
@@ -73,8 +77,8 @@ int main(int argc, char** argv)
 
 		// 피부 검출 및 이진화
 		image = skinDetection(image);
-		namedWindow("binary Image");
-		imshow("binary Image", image);
+		//namedWindow("binary Image");
+		//imshow("binary Image", image);
 
 		// 손바닥 중심 검출
 		Point palmCenter;
@@ -103,9 +107,9 @@ int main(int argc, char** argv)
 		while (!tmp.empty())
 		{
 			if (tmp.front() >= 0)  // 손 있는 경우
-			{ 
-				mode[tmp.front()]++; 
-				
+			{
+				mode[tmp.front()]++;
+
 			}
 			else { mode[6]++; } // 손 없는 경우
 			tmp.pop();
@@ -113,14 +117,14 @@ int main(int argc, char** argv)
 
 
 		// 손가락 개수가 몇 개인지 cmd창에 보여준다
-		printf("%3d%3d%3d%3d%3d%3d%3d\n", 0, 1, 2, 3, 4, 5, -1);
+		//printf("%3d%3d%3d%3d%3d%3d%3d\n", 0, 1, 2, 3, 4, 5, -1);
 
 		// 손가락 개수 최빈값 구하기
-		int max = -1; 
+		int max = -1;
 		int idx = -1;// 제일 많은 '손가락개수'
 		for (int i = 0; i < 7; i++)
 		{
-			printf("%3d", mode[i]);
+			//printf("%3d", mode[i]);
 			if (max <= mode[i])
 			{
 				max = mode[i];
@@ -134,8 +138,8 @@ int main(int argc, char** argv)
 		{
 			fingerCount = -1;
 		}
-		printf("\nupdated fingerCount: %d\n\n", fingerCount);
-		
+		//printf("\nupdated fingerCount: %d\n\n", fingerCount);
+
 
 		// 그림판
 		resize(paper, paper, image.size());
@@ -262,11 +266,11 @@ Point palmDetection(Mat img)
 
 			Point palmCenter(col, row);
 
-			// 찾은 손바닥 중심 시각화
-			cvtColor(img, img, COLOR_GRAY2BGR);
-			circle(img, palmCenter, 5, Scalar(123, 255, 123), -1);
-			namedWindow("Palm Image");
-			imshow("Palm Image", img);
+			//// 찾은 손바닥 중심 시각화
+			//cvtColor(img, img, COLOR_GRAY2BGR);
+			//circle(img, palmCenter, 5, Scalar(123, 255, 123), -1);
+			//namedWindow("Palm Image");
+			//imshow("Palm Image", img);
 
 
 
@@ -389,10 +393,10 @@ int countFinger(Mat img, Point center) {
 		pre_y = y;
 
 		// 내부원, 외부원, 카운트한 부분 표시
-		imshow("circles", color);
+		//imshow("circles", color);
 	}
 
-	printf("count: %d\n", count);
+	//printf("count: %d\n", count);
 
 
 
@@ -401,7 +405,7 @@ int countFinger(Mat img, Point center) {
 
 
 	// 3. 텍스트로 보여주기
-	printf("fingerCount: %d\n\n", fingerCount);
+	//printf("fingerCount: %d\n\n", fingerCount);
 
 	string text = "fingerCount = ";
 
@@ -425,10 +429,16 @@ int countFinger(Mat img, Point center) {
 	Point textOrg((img.cols - textSize.width) / 2, (img.rows + textSize.height) / 1.2);
 
 	// then put the text itself
-	putText(dst, text, textOrg, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
+	//putText(dst, text, textOrg, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
+	putText(color, text, textOrg, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
+
+	// 손바닥 중심 위치
+	circle(color, center, 5, Scalar(123, 255, 123), -1);
+	
 
 	// 결과 보여주기
-	imshow("Detected Fingers", dst);
+	//imshow("Detected Fingers", dst);
+	imshow("circles", color);
 
 	return fingerCount;
 }
