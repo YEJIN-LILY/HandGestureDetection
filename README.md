@@ -12,13 +12,13 @@ Last Update: 2020.11.01 19:00 <br>
 
 ## Structure
 1. 영상을 프레임별로 계속 가져오기 <br>
-   Mat getImage(const Mat& img);
+   Mat getImage(const Mat& img)
    - 웹캠
    - 좌우 반전
    - 미디안 필터(잡음 제거)
 
 2. 피부 검출 및 이진화 <br>
-   Mat skinDetection(const Mat& image, int minCr = 133, int maxCr = 173, int minCb = 77, int maxCb = 127);
+   Mat skinDetection(const Mat& image, int minCr = 133, int maxCr = 173, int minCb = 77, int maxCb = 127)
    - RGB -> YCbCr로 컬러 공간 변환
    - 피부영역(두 값 사이) 검출 
    - 피부는 흰색, 배경은 검정으로 이진화
@@ -39,7 +39,7 @@ Last Update: 2020.11.01 19:00 <br>
    - queue 사용
    
 6. 손바닥으로 그림 그리기 <br>
-   void palmPaint(Mat& paper, Point palmCenter, int fingerCount);
+   void palmPaint(Mat& paper, Point palmCenter, int fingerCount)
    - 현재 위치 검은 점으로 표시
    - 디폴트 색은 Red
    - 0: 모두 지우기
