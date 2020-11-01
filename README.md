@@ -6,24 +6,24 @@
 
 ## Structure
 1. 영상을 프레임별로 계속 가져오기 
-   - Mat getImage(Mat img)
+   Mat getImage(const Mat& img);
    - 웹캠
    - 좌우 반전
    - 미디안 필터(잡음 제거)
 
-2. 피부 검출 
-   - Mat skinDetection(Mat img)
+2. 피부 검출 및 이진화
+   Mat skinDetection(const Mat& image, int minCr = 133, int maxCr = 173, int minCb = 77, int maxCb = 127);
    - RGB -> YCbCr로 컬러 공간 변환
    - 피부영역(두 값 사이) 검출 
    - 피부는 흰색, 배경은 검정으로 이진화
    - 열림, 닫힘 연산(잡음제거)
 
 3. 손바닥 중심 검출
-   - Point palmDetection(Mat img)
+   Point palmDetection(Mat img)
    - 침식으로 손바닥 중심 알아내기
 
 4. 손가락 개수 세기
-   - void countFinger(Mat img, Point palm)
+   void countFinger(Mat img, Point palm)
    - 손바닥 중심부터 원을 그려나가며 내부 최대 원 찾기
    - 손가락 개수 세기: 반지름이 내부 최대 원의 2배인 원 둘레를 따라가며 검정, 흰색이 바뀌는 횟수 찾기
    - 텍스트로 보여주기
@@ -33,7 +33,7 @@
    - queue 사용
    
 6. 손바닥으로 그림 그리기
-   - void palmPaint(Mat& paper, Point palmCenter, int fingerCount);
+   void palmPaint(Mat& paper, Point palmCenter, int fingerCount);
    - 현재 위치 검은 점으로 표시
    - 0: 모두 지우기
    - 1: 해당 픽셀 지우기
