@@ -41,6 +41,7 @@ Last Update: 2020.11.01 19:00 <br>
 6. 손바닥으로 그림 그리기 <br>
    void palmPaint(Mat& paper, Point palmCenter, int fingerCount);
    - 현재 위치 검은 점으로 표시
+   - 디폴트 색은 Red
    - 0: 모두 지우기
    - 1: 해당 픽셀 지우기
       + 지우개 반지름 10
