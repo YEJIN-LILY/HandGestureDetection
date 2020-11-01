@@ -18,23 +18,25 @@ using namespace std;
 
 // HandGestureDetection
 
-// 영상을 프레임별로 계속 가져오기
+// 블러된 영상을 프레임별로 계속 가져오기
 Mat getImage(const Mat& img);
 
 // 피부 검출 및 이진화
 Mat skinDetection(const Mat& image, int minCr = 133, int maxCr = 173, int minCb = 77, int maxCb = 127);
 
-// 손바닥 검출
+// 손바닥 중심 검출
 Point palmDetection(Mat img);
 
 // 손가락 개수 세기
-void countFinger(Mat img, Point palm);
+int countFinger(Mat img, Point palm);
 
 int main(int argc, char** argv)
 {
 	Mat image;
 	VideoCapture cap;
 
+
+	// 웹캠
 	int deviceID = 0;
 	int apiID = cv::CAP_ANY;
 
@@ -48,24 +50,20 @@ int main(int argc, char** argv)
 		imshow("webcam Image", image); //live image test(나중에 삭제)
 
 
-
+		// 블러된 영상을 프레임별로 계속 가져오기
 		image = getImage(image);
+
+		// 피부 검출 및 이진화
 		image = skinDetection(image);
 		namedWindow("binary Image");
 		imshow("binary Image", image);
 
-
-
-
+		// 손바닥 중심 검출
 		Point palmCenter;
 		palmCenter = palmDetection(image);
 
-		//namedWindow("Palm Image");
-		//imshow("Palm Image", image);
-
+		// 손가락 개수 세기
 		countFinger(image, palmCenter);
-		//namedWindow("Finger Image");
-		//imshow("Finger Image", image);
 
 		if (waitKey(5) >= 0) break;
 	}
@@ -76,13 +74,13 @@ int main(int argc, char** argv)
 
 	cout << "end" << endl;
 
-	waitKey(0);
+	waitKey(1000);
 
 	return 0;
 }
 
 
-// 영상을 프레임별로 계속 가져오기
+// 블러된 영상을 프레임별로 계속 가져오기
 Mat getImage(const Mat& img) {
 	Mat result;
 
@@ -118,13 +116,17 @@ Mat skinDetection(const Mat& image, int minCr, int maxCr, int minCb, int maxCb) 
 	erode(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 2);
 	dilate(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 1);
 
+	dilate(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 2);
+	erode(mask, mask, Mat(3, 3, CV_8U, Scalar(1)), Point(-1, -1), 1);
+
 
 	return mask;
 }
 
-// 손바닥 검출
+// 손바닥 중심 검출
 Point palmDetection(Mat img)
 {
+	
 	Mat before;
 	Mat after;
 
@@ -132,15 +134,15 @@ Point palmDetection(Mat img)
 
 	bool allBlack = true;
 
-
+	// 계속 침식하다가 after의 화소가 전부 black이 되면 before에 남아있는 화소의 평균 위치 리턴
 	while (allBlack)
 	{
-
 		erode(before, after, Mat());
 
 		//imshow("before", before);
 		//imshow("after", after);
 
+		// after이 전부 블랙인지 검사
 		for (int j = 0; j < img.rows; j++)
 		{
 			//j열의 주소(nc개만큼) 가져오기
@@ -152,10 +154,9 @@ Point palmDetection(Mat img)
 
 		}
 
-
-
 		//waitKey(100);
 
+		//  after의 화소가 전부 black이 되면 before에 남아있는 화소의 평균 위치 리턴
 		if (allBlack)
 		{
 			//imshow("return", before);
@@ -165,6 +166,7 @@ Point palmDetection(Mat img)
 			int row = 0;
 			int count = 0;
 
+			// before에 있는 모든 화소의 평균 위치 계산
 			for (int j = 0; j < img.rows; j++)
 			{
 				//j열의 주소(nc개만큼) 가져오기
@@ -180,17 +182,14 @@ Point palmDetection(Mat img)
 				}
 
 			}
-
 			row = (int)(row / count);
 			col = (int)(col / count);
 
 			Point palmCenter(col, row);
 
-			//after.at<uchar>(row, col) = 255;
+			// 찾은 손바닥 중심 시각화
 			cvtColor(img, img, COLOR_GRAY2BGR);
-
 			circle(img, palmCenter, 5, Scalar(123, 255, 123), -1);
-
 			namedWindow("Palm Image");
 			imshow("Palm Image", img);
 
@@ -208,10 +207,15 @@ Point palmDetection(Mat img)
 
 
 // 손가락 개수 세기
-void countFinger(Mat img, Point center) {
+int countFinger(Mat img, Point center) {
 
+	// 1. 손바닥 중심부터 원을 그려나가며 내부 최대 원 찾기
+	// 2. 손가락 개수 세기: 반지름이 내부 최대 원의 2배인 원 둘레를 따라가며 검정, 흰색이 바뀌는 횟수 찾기
+	// 3. 텍스트로 보여주기
+	
+	// dst: 결과 영상
+	// color: 원 그린 영상
 	Mat dst, color;
-	//img.copyTo(dst);
 	dst = img.clone();
 
 
@@ -220,7 +224,8 @@ void countFinger(Mat img, Point center) {
 	cvtColor(dst, dst, COLOR_GRAY2BGR);
 	//circle(color, center, 5, Scalar(123, 255, 123), -1);
 
-
+	// 1. 손바닥 중심부터 원을 그려나가며 내부 최대 원 찾기
+	// 원 둘레가 검은 픽셀을 만나게 되면 내부 최대 원임
 	double radius = 15.0;
 	int x, y;
 	bool stop = false;
@@ -233,7 +238,7 @@ void countFinger(Mat img, Point center) {
 			y = (int)(sin(theta * PI / 180) * radius + center.x);
 			if (0 < x && x < img.rows && 0 < y && y < img.cols)
 			{
-				// 체크하고 있는 곳 표시
+				// 체크하고 있는 곳 표시. 파란색
 				color.at<Vec3b>(x, y)[0] = 255;
 				color.at<Vec3b>(x, y)[1] = 120;
 				color.at<Vec3b>(x, y)[2] = 50;
@@ -244,28 +249,17 @@ void countFinger(Mat img, Point center) {
 					stop = true; // while 탈출~~
 					break; // for 루프 탈출~~
 				}
-
-				//namedWindow("color");
-				//imshow("color", color);
-				//waitKey(10);
 			}
 		}
 		radius += 1; // 원 반지름 증가
 	}
 
-	//namedWindow("inner circle");
-	//imshow("inner circle", color);
 
 
-	//Mat image = imread("hand.jpg");
-
-	//Point center = palmDetectuon(img); // input gray-scale image
-	//Point_<double> center((double)dst.size().width / 2, (double)dst.size().height / 2);
-	//Point_<double> center(palm);
-	//cout << "손바닥 중심점 좌표:" << center << endl;
-
-
+	// 2. 손가락 개수 세기: 반지름이 내부 최대 원의 2배인 원 둘레를 따라가며 검정, 흰색이 바뀌는 횟수 찾기
 	// 최종 원 그리기
+
+	// 외부 원: 내부 원보다 반지름 크게
 	//radius = radius * 1.5;
 	radius = radius * 2;
 
@@ -276,13 +270,13 @@ void countFinger(Mat img, Point center) {
 	pre_y = (int)(sin(0 * PI / 180) * radius + center.x);
 
 
-	//printf("row, column = %d, %d\n", img.rows, img.cols);
+	// 외부원 둘레를 따라가며 검정, 흰색이 바뀌는 부분의 횟수 카운트
 	for (int theta = 1; theta < 360; theta++) 
 	{
 		x = (int)(cos(theta * PI / 180) * radius + center.y);
 		y = (int)(sin(theta * PI / 180) * radius + center.x);
 
-
+		// pre_, pre_y가 화면 밖을 벗어나면 다음 루프 실행
 		if ( !(0 < pre_x && pre_x < img.rows && 0 < pre_y && pre_y < img.cols) )
 		{
 			pre_x = x;
@@ -291,23 +285,27 @@ void countFinger(Mat img, Point center) {
 		}
 
 
-
+		// x, y가 화면 밖을 안 벗어난다면
 		if (0 < x && x < img.rows && 0 < y && y < img.cols)
 		{
 			// 체크하고 있는 곳 표시. 호박색
-			color.at<Vec3b>(x, y)[0] = 50;
-			color.at<Vec3b>(x, y)[1] = 120;
-			color.at<Vec3b>(x, y)[2] = 255;
+			//color.at<Vec3b>(x, y)[0] = 50;
+			//color.at<Vec3b>(x, y)[1] = 120;
+			//color.at<Vec3b>(x, y)[2] = 255;
 
-			//printf("before, now = (%3d, %3d), (%3d, %3d)\n", pre_x, pre_y, x, y);
-			//printf("befroe, now = %3d, %3d\n\n", img.at<uchar>(pre_x, pre_y), img.at<uchar>(x, y));
+			// // 체크하고 있는 곳 표시. 잔디색
+			color.at<Vec3b>(x, y)[0] = 50;
+			color.at<Vec3b>(x, y)[1] = 255;
+			color.at<Vec3b>(x, y)[2] = 120;
+
 
 			// 이전 화소와 값이 다르다면 카운트
+			// 검정-> 흰색으로 바뀌거나 흰색-> 검정으로 바뀌는 부분 카운트
 			if ( img.at<uchar>(pre_x, pre_y) != img.at<uchar>(x, y)) 
 			{ 
-				color.at<Vec3b>(x, y)[0] = 50;
-				color.at<Vec3b>(x, y)[1] = 255;
-				color.at<Vec3b>(x, y)[2] = 120;
+				// 카운트한 부분 표시. 핫핑크색
+				circle(color, Point(y, x), 3, Scalar(120, 0, 255), -1);
+
 				count++;
 			}
 
@@ -315,18 +313,20 @@ void countFinger(Mat img, Point center) {
 		pre_x = x;
 		pre_y = y;
 
-
+		// 내부원, 외부원, 카운트한 부분 표시
 		imshow("circles", color);
-		//waitKey(1);
 	}
 
 	printf("count: %d\n", count);
 
 
+
+	// 손목을 포함하므로 다음의 계산식을 거쳐야 손가락 개수임
 	int fingerCount = (count / 2) - 1;
 
-	printf("fingerCount: %d\n\n", fingerCount);
 
+	// 3. 텍스트로 보여주기
+	printf("fingerCount: %d\n\n", fingerCount);
 
 	string text = "fingerCount = ";
 	
@@ -349,16 +349,13 @@ void countFinger(Mat img, Point center) {
 	// center the text
 	Point textOrg((img.cols - textSize.width) / 2, (img.rows + textSize.height) / 1.2);
 
-
 	// then put the text itself
 	putText(dst, text, textOrg, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
 
-
-
+	// 결과 보여주기
 	imshow("Detected Fingers", dst);
 
-
-
+	return fingerCount;
 }
 
 
