@@ -10,11 +10,15 @@
 #include <string>
 #include <math.h>
 #include <stdio.h>
+#include <queue>
+
 
 using namespace cv;
 using namespace std;
 
 #define PI 3.14159265
+#define qSize 10
+
 
 // HandGestureDetection
 
@@ -39,6 +43,16 @@ int main(int argc, char** argv)
 	Mat image;
 	VideoCapture cap;
 	Mat paper(Size(480, 640), CV_8UC3, Scalar(255, 255, 255));
+
+
+	int fingerCount = -1;
+
+	queue<int> countQ;
+
+	for (int i = 0; i < qSize; i++)
+	{
+		countQ.push(-1);
+	}
 
 	// 웹캠
 	int deviceID = 0;
@@ -66,19 +80,69 @@ int main(int argc, char** argv)
 		Point palmCenter;
 		palmCenter = palmDetection(image);
 
-		int fingerCount;
+
 		// 손가락 개수 세기
-		fingerCount = countFinger(image, palmCenter);
+		int tmpFingerCount;
+		tmpFingerCount = countFinger(image, palmCenter);
+
+		// 손가락을 6개 이상 찾으면 5개라고 한다.
+		if (tmpFingerCount > 5) { tmpFingerCount = 5; }
 
 
+
+
+		// ~~~ 큐에 있는 모든 수 중 최빈값으로 fingerCount 업데이트
+
+		// 큐에 현재 값 넣고 예전 값 빼기
+		countQ.push(tmpFingerCount);
+		countQ.pop();
+
+		queue<int> tmp(countQ);
+
+		int mode[7] = { 0 }; // '손가락개수'의 개수를 센다
+		while (!tmp.empty())
+		{
+			if (tmp.front() >= 0)  // 손 있는 경우
+			{ 
+				mode[tmp.front()]++; 
+				
+			}
+			else { mode[6]++; } // 손 없는 경우
+			tmp.pop();
+		}
+
+
+		// 손가락 개수가 몇 개인지 cmd창에 보여준다
+		printf("%3d%3d%3d%3d%3d%3d%3d\n", 0, 1, 2, 3, 4, 5, -1);
+
+		// 손가락 개수 최빈값 구하기
+		int max = -1; 
+		int idx = -1;// 제일 많은 '손가락개수'
+		for (int i = 0; i < 7; i++)
+		{
+			printf("%3d", mode[i]);
+			if (max <= mode[i])
+			{
+				max = mode[i];
+				idx = i;
+			}
+		}
+
+
+		fingerCount = idx;
+		if (idx == 6) // 손이 없는 경우
+		{
+			fingerCount = -1;
+		}
+		printf("\nupdated fingerCount: %d\n\n", fingerCount);
+		
+
+		// 그림판
 		resize(paper, paper, image.size());
 		palmPaint(paper, palmCenter, fingerCount);
 
 		if (waitKey(5) >= 0) break;
 	}
-
-
-
 
 
 	cout << "end" << endl;
