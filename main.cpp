@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 		Size half(image.cols / 2, image.rows / 2);
 		resize(image, resizedImg, half);
 		namedWindow("webcam Image");
-		imshow("webcam Image", resizedImg); //live image test(나중에 삭제)
+		imshow("webcam Image", resizedImg); 
 
 
 		// 블러된 영상을 프레임별로 계속 가져오기
