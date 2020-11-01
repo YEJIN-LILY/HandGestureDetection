@@ -3,6 +3,7 @@ HandGestureDetection Project
 
 <br>
 Last Update: 2020.11.01 19:00 <br>
+
 ---
 
 ## Specification
