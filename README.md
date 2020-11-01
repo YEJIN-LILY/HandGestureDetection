@@ -56,5 +56,6 @@ HandGestureDetection Project
 월요일 밤까지 ppt
 
 ## Result
+Click below image to watch video!
 [![Go to see Source Program](http://img.youtube.com/vi/-6FC3nyXvvU/0.jpg)](https://youtu.be/-6FC3nyXvvU) 
 
