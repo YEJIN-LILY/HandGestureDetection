@@ -1,6 +1,8 @@
 # Source
 HandGestureDetection Project
 
+---
+
 ## Specification
 * OpenCV 4.4.0
 * Microsoft Visual C++ 2019
@@ -56,6 +58,6 @@ HandGestureDetection Project
 월요일 밤까지 ppt
 
 ## Result
-Click below image to watch video!
+Click below image to watch video! <br>
 [![Go to see Source Program](http://img.youtube.com/vi/-6FC3nyXvvU/0.jpg)](https://youtu.be/-6FC3nyXvvU) 
 
