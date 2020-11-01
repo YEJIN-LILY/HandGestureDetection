@@ -371,10 +371,10 @@ int countFinger(Mat img, Point center) {
 
 
 // 손바닥으로 그림 그리기
-void palmPaint(Mat &original, Point palmCenter, int fingerCount)
+void palmPaint(Mat& original, Point palmCenter, int fingerCount)
 {
 	Mat paper = original.clone();
-	
+
 	// 색깔 설정
 	Scalar red(0, 0, 255);
 	Scalar green(0, 255, 0);
@@ -382,7 +382,7 @@ void palmPaint(Mat &original, Point palmCenter, int fingerCount)
 	Scalar white(255, 255, 255);
 	Scalar black(0, 0, 0);
 	static Scalar color(0, 0, 255);
-	
+
 	// 안내 문구
 	string text0 = "0: erase all";
 	string text1 = "1: erase the pixel";
@@ -475,7 +475,7 @@ void palmPaint(Mat &original, Point palmCenter, int fingerCount)
 		putText(paper, text4, textOrg4, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
 		putText(paper, text5, textOrg5, fontFace, fontScale, Scalar(200, 200, 70), thickness, 8);
 
-		
+
 		// 크레딧
 		string developer = "Developer : YEJIN-LILY, KimRiun, LeeJE20";
 		fontScale = 1.5;
@@ -486,7 +486,7 @@ void palmPaint(Mat &original, Point palmCenter, int fingerCount)
 
 		fontScale = 3;
 		thickness = 3;
-		string title = "Paper";
+		string title = "Source";
 		Size textSize_title = getTextSize(title, fontFace, fontScale, thickness, &baseline);
 		Point textOrg_title((paper.cols - textSize_title.width) / 2, (paper.rows + textSize_title.height) / 8);
 		putText(paper, title, textOrg_title, fontFace, fontScale, Scalar(255, 180, 120), thickness, 8);
@@ -496,4 +496,3 @@ void palmPaint(Mat &original, Point palmCenter, int fingerCount)
 	}
 	imshow("Paper", paper);
 }
-
