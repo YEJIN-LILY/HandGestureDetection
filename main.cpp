@@ -77,8 +77,6 @@ int main(int argc, char** argv)
 
 		// 피부 검출 및 이진화
 		image = skinDetection(image);
-		//namedWindow("binary Image");
-		//imshow("binary Image", image);
 
 		// 손바닥 중심 검출
 		Point palmCenter;
@@ -115,10 +113,6 @@ int main(int argc, char** argv)
 			tmp.pop();
 		}
 
-
-		// 손가락 개수가 몇 개인지 cmd창에 보여준다
-		//printf("%3d%3d%3d%3d%3d%3d%3d\n", 0, 1, 2, 3, 4, 5, -1);
-
 		// 손가락 개수 최빈값 구하기
 		int max = -1;
 		int idx = -1;// 제일 많은 '손가락개수'
@@ -138,8 +132,6 @@ int main(int argc, char** argv)
 		{
 			fingerCount = -1;
 		}
-		//printf("\nupdated fingerCount: %d\n\n", fingerCount);
-
 
 		// 그림판
 		resize(paper, paper, image.size());
@@ -216,9 +208,6 @@ Point palmDetection(Mat img)
 	{
 		erode(before, after, Mat());
 
-		//imshow("before", before);
-		//imshow("after", after);
-
 		// after이 전부 블랙인지 검사
 		for (int j = 0; j < img.rows; j++)
 		{
@@ -230,8 +219,6 @@ Point palmDetection(Mat img)
 			}
 
 		}
-
-		//waitKey(100);
 
 		//  after의 화소가 전부 black이 되면 before에 남아있는 화소의 평균 위치 리턴
 		if (allBlack)
@@ -265,14 +252,6 @@ Point palmDetection(Mat img)
 			col = (int)(col / count);
 
 			Point palmCenter(col, row);
-
-			//// 찾은 손바닥 중심 시각화
-			//cvtColor(img, img, COLOR_GRAY2BGR);
-			//circle(img, palmCenter, 5, Scalar(123, 255, 123), -1);
-			//namedWindow("Palm Image");
-			//imshow("Palm Image", img);
-
-
 
 			return palmCenter;
 		}
@@ -367,10 +346,6 @@ int countFinger(Mat img, Point center) {
 		// x, y가 화면 밖을 안 벗어난다면
 		if (0 < x && x < img.rows && 0 < y && y < img.cols)
 		{
-			// 체크하고 있는 곳 표시. 호박색
-			//color.at<Vec3b>(x, y)[0] = 50;
-			//color.at<Vec3b>(x, y)[1] = 120;
-			//color.at<Vec3b>(x, y)[2] = 255;
 
 			// // 체크하고 있는 곳 표시. 잔디색
 			color.at<Vec3b>(x, y)[0] = 50;
@@ -392,12 +367,7 @@ int countFinger(Mat img, Point center) {
 		pre_x = x;
 		pre_y = y;
 
-		// 내부원, 외부원, 카운트한 부분 표시
-		//imshow("circles", color);
 	}
-
-	//printf("count: %d\n", count);
-
 
 
 	// 손목을 포함하므로 다음의 계산식을 거쳐야 손가락 개수임
