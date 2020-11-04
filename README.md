@@ -53,7 +53,7 @@ __6. 손바닥으로 그림 그리기 <br>__
    - 그 외: 기능 설명 및 크레딧 보여주기
 
 ## Plan
-1, 2, ppt: __YEJIN-LILY<br>__
+1, 2, ppt, 발표: __YEJIN-LILY<br>__
 3, 5, 6, 메인 합치기: __LeeJE20<br>__
 4, 시연 영상: __KimRiun<br>__
 
